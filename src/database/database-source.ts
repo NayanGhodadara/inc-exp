@@ -1,8 +1,6 @@
 import { DataSourceOptions } from "typeorm";
 import { DataSource } from "typeorm";
 import * as dotenv from 'dotenv';
-import { UserEntity } from "../api/user/user.entity";
-
 
 dotenv.config();
 export const databaseSourceOption: DataSourceOptions = {

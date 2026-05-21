@@ -6,7 +6,7 @@ import { DeviceContext } from '../../middleware/user.middleware';
 import { UserDto } from './user.dto';
 import { I18n, I18nContext } from 'nestjs-i18n';
 
-@Controller('user')
+@Controller()
 export class UserController {
 
     constructor(
