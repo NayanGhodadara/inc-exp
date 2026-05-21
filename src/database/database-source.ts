@@ -1,7 +1,7 @@
 import { DataSourceOptions } from "typeorm";
 import { DataSource } from "typeorm";
 import * as dotenv from 'dotenv';
-import { UserEntity } from "../user.entity";
+import { UserEntity } from "../api/user/user.entity";
 
 
 dotenv.config();
@@ -17,7 +17,7 @@ export const databaseSourceOption: DataSourceOptions = {
         rejectUnauthorized: false,
     },
     entities: [
-        UserEntity
+        __dirname + '/../**/*.entity{.ts,.js}'
     ],
     synchronize: process.env.NODE_ENV !== 'production',
 }

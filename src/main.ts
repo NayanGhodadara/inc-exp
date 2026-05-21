@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { AppModule } from './api/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule) as any;
@@ -15,12 +15,12 @@ async function bootstrap() {
     .setDescription('API documentation for the Inc-Exp application')
     .setVersion('1.0')
     .addBearerAuth()
-    .addServer(process.env.BASE_URL || "", 'Inc-Exp server')
+    .addServer("http://localhost:2000", 'Inc-Exp server')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/v1/api-docs', app, document, {
-    customfavIcon: '/app_icon.png',
+    customfavIcon: '/app-icon.png',
   });
 
   app.useGlobalPipes(

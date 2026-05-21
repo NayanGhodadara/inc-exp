@@ -1,0 +1,11 @@
+{
+    "LOGIN_SUCCESS": "Thanks",
+    "INVALID_GOOGLE_TOKEN": "google token is no valid",
+    "INVALID_APPLE_TOKEN": "apple token is no valid",
+    "TOKEN_REQUIRED": "token required",
+    "PROVIDER_TYPE_REQUIRED": "provider type required",
+    "EMAIL_REQUIRED": "email required",
+    "INVALID_PROVIDER": "provider type must be google and apple",
+    "SOMETHING_WRONG": "something wrong",
+    "SUCCESS": "success"
+}
