@@ -6,6 +6,8 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule) as any;
 
+  app.setGlobalPrefix('api/v1');
+
   //Swagger
   const config = new DocumentBuilder()
     .setTitle('Inc-Exp API')
@@ -21,7 +23,6 @@ async function bootstrap() {
   });
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.setGlobalPrefix('api/v1');
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
