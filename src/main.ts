@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule) as any;
@@ -21,6 +22,27 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/api-docs', app, document, {
     customfavIcon: '/app_icon.png',
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: false,
+      forbidNonWhitelisted: false,
+
+      exceptionFactory: (errors) => {
+        const formattedErrors = errors.map((err) => {
+          return Object.values(err.constraints || {});
+        }).flat();
+
+        return new BadRequestException({
+          statusCode: 400,
+          message: formattedErrors[0],
+          error: 'Bad Request',
+        });
+      },
+    }),
+    //new UpperCasePipe()
+  );
+
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');

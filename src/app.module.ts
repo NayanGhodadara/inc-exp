@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseSourceOption } from './database/database-source';
 import { ConfigModule } from '@nestjs/config';
+import { UserEntity } from './user.entity';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { ConfigModule } from '@nestjs/config';
       expandVariables: true,
       cache: true,
     }),
-    TypeOrmModule.forRoot(databaseSourceOption)
+    TypeOrmModule.forRoot(databaseSourceOption),
+    TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [AppController],
   providers: [AppService],

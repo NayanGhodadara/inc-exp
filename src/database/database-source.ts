@@ -1,6 +1,7 @@
 import { DataSourceOptions } from "typeorm";
 import { DataSource } from "typeorm";
 import * as dotenv from 'dotenv';
+import { UserEntity } from "../user.entity";
 
 
 dotenv.config();
@@ -15,8 +16,20 @@ export const databaseSourceOption: DataSourceOptions = {
     ssl: {
         rejectUnauthorized: false,
     },
-    entities: [],
+    entities: [
+        UserEntity
+    ],
     synchronize: process.env.NODE_ENV !== 'production',
 }
 
 export const dataSource = new DataSource(databaseSourceOption)
+
+dataSource.initialize()
+    .then(() => {
+        console.log('DATABASE CONNECTED');
+    })
+    .catch((error) => {
+        console.log('DATABASE CONNECTION ERROR');
+
+        console.log(error);
+    });
