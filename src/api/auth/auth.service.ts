@@ -1,7 +1,7 @@
-import { OtpDto } from './otp.dto';
+import { OtpDto } from './dto/otp.dto';
 import { dataSource } from './../../database/database-source';
 import { pa, as } from './../../../node_modules/make-plural/cardinals.d';
-import { SocialLoginDto } from './social.dto';
+import { SocialLoginDto } from './dto/social.dto';
 import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../user/user.entity";
@@ -16,7 +16,7 @@ import { TokenService } from './token/token.service';
 import moment from 'moment';
 import { DataSource } from 'typeorm/browser';
 import { DashboardDto } from '../user/dahsboard/dashboard.dto';
-import { LoginDto } from './login.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {

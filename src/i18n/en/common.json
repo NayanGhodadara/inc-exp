@@ -13,5 +13,10 @@
     "SOMETHING_WRONG": "something wrong",
     "SUCCESS": "success",
     "NAME_REQUIRED": "name required",
-    "DASHBOARD_NAME_ALREADY_EXISTS": "Dashboard with this name already exist"
+    "DASHBOARD_NAME_ALREADY_EXISTS": "Dashboard with this name already exist",
+    "CIID_REQUIRED": "CIID is required",
+    "TITLE_REQUIRED": "title is required",
+    "TYPE_REQUIRED": "type is required",
+    "INVALID_CIID": "Invalid ciid",
+    "CATEGORY_CREATED": "category created successfully"
 }

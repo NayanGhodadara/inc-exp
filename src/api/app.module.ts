@@ -9,6 +9,8 @@ import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n';
 import { join } from 'path';
 import { TokenModule } from './auth/token/token.module';
 import { UserModule } from './user/user.module';
+import { CategoryModule } from './category/category.module';
+import { OptionModule } from './option/option.module';
 
 
 @Module({
@@ -40,6 +42,8 @@ import { UserModule } from './user/user.module';
     AuthModule,
     TokenModule,
     UserModule,
+    CategoryModule,
+    OptionModule
   ],
   controllers: [AppController],
   providers: [AppService],

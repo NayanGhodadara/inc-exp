@@ -3,3 +3,8 @@ export enum ProviderType {
     APPLE = 'apple',
     EMAIL = 'email'
 }
+
+export enum CategoryType {
+    INCOME = 'income',
+    EXPENSE = 'expense'
+}

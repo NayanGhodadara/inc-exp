@@ -4,7 +4,7 @@ import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from '../../guard/auth.guard';
 import { DeviceContext } from '../../middleware/user.middleware';
-import { UserDto } from './user.dto';
+import { UserDto } from './dto/user.dto';
 import { I18n, I18nContext } from 'nestjs-i18n';
 import { DashboardDto } from './dahsboard/dashboard.dto';
 

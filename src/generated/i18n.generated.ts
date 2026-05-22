@@ -21,6 +21,11 @@ export type I18nTranslations = {
         "SUCCESS": string;
         "NAME_REQUIRED": string;
         "DASHBOARD_NAME_ALREADY_EXISTS": string;
+        "CIID_REQUIRED": string;
+        "TITLE_REQUIRED": string;
+        "TYPE_REQUIRED": string;
+        "INVALID_CIID": string;
+        "CATEGORY_CREATED": string;
     };
 };
 /* prettier-ignore */
