@@ -39,7 +39,7 @@ import { UserModule } from './user/user.module';
     }),
     AuthModule,
     TokenModule,
-    UserModule
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

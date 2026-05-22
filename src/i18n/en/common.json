@@ -5,7 +5,13 @@
     "TOKEN_REQUIRED": "token required",
     "PROVIDER_TYPE_REQUIRED": "provider type required",
     "EMAIL_REQUIRED": "email required",
+    "OTP_REQUIRED": "otp required",
+    "INVALID_OTP": "invalid otp",
+    "OTP_SEND": "Otp sent successfully",
+    "OTP_VERIFIED": "otp verify successfully",
     "INVALID_PROVIDER": "provider type must be google and apple",
     "SOMETHING_WRONG": "something wrong",
-    "SUCCESS": "success"
+    "SUCCESS": "success",
+    "NAME_REQUIRED": "name required",
+    "DASHBOARD_NAME_ALREADY_EXISTS": "Dashboard with this name already exist"
 }

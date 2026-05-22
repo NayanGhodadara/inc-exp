@@ -17,7 +17,7 @@ export const databaseSourceOption: DataSourceOptions = {
     entities: [
         __dirname + '/../**/*.entity{.ts,.js}'
     ],
-    synchronize: process.env.NODE_ENV == "local",
+    synchronize: process.env.NODE_ENV != "production",
 }
 
 export const dataSource = new DataSource(databaseSourceOption)

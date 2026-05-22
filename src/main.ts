@@ -8,6 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule) as any;
 
   app.setGlobalPrefix('api/v1');
+  app.enableCors();
 
   //Swagger
   const config = new DocumentBuilder()
@@ -15,8 +16,7 @@ async function bootstrap() {
     .setDescription('API documentation for the Inc-Exp application')
     .setVersion('1.0')
     .addBearerAuth()
-    //.addServer("http://localhost:2000", 'Inc-Exp server')
-    .addServer(process.env.BASE_URL || '', 'Inc-Exp server')
+    .addServer("http://localhost:2000", 'Inc-Exp server')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

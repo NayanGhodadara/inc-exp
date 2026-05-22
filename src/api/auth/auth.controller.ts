@@ -4,6 +4,8 @@ import { ApiBody, ApiOperation } from "@nestjs/swagger";
 import { SocialLoginDto } from "./social.dto";
 import { ProviderType } from '../../constants/app.constants';
 import { I18n, I18nContext } from 'nestjs-i18n';
+import { LoginDto } from './login.dto';
+import { OtpDto } from './otp.dto';
 
 @Controller()
 export class AuthController {
@@ -12,7 +14,7 @@ export class AuthController {
     ) { }
 
     @Post('social-login')
-    @ApiOperation({ summary: 'socail login', description: `**provider type** :${Object.values(ProviderType).map(s => `\`${s}\``).join(', ')}` })
+    @ApiOperation({ deprecated: true, summary: 'socail login', description: `**provider type** :google, email` })
     @ApiBody({ type: SocialLoginDto })
     async socialLogin(
         @Body() socialLoginDto: SocialLoginDto,
@@ -22,6 +24,40 @@ export class AuthController {
         return {
             statusCode: 200,
             message: i18n.t('common.LOGIN_SUCCESS'),
+            data: data
+        }
+    }
+
+    @Post('login')
+    @ApiOperation({
+        summary: 'user login', description: `### Login user with email`,
+    })
+    @ApiBody({ type: LoginDto })
+    async login(
+        @Body() loginDto: LoginDto,
+        @I18n() i18n: I18nContext
+    ) {
+        const data = await this.authService.login(loginDto, i18n)
+        return {
+            statusCode: 200,
+            message: i18n.t('common.OTP_SEND'),
+            data: data
+        }
+    }
+
+    @Post('verify-otp')
+    @ApiOperation({
+        summary: 'verify otp', description: `### Verify user with email otp`,
+    })
+    @ApiBody({ type: OtpDto })
+    async verifyOtp(
+        @Body() otpDto: OtpDto,
+        @I18n() i18n: I18nContext
+    ) {
+        const data = await this.authService.verifyOtp(otpDto, i18n)
+        return {
+            statusCode: 200,
+            message: i18n.t('common.OTP_VERIFIED'),
             data: data
         }
     }

@@ -12,9 +12,15 @@ export type I18nTranslations = {
         "TOKEN_REQUIRED": string;
         "PROVIDER_TYPE_REQUIRED": string;
         "EMAIL_REQUIRED": string;
+        "OTP_REQUIRED": string;
+        "INVALID_OTP": string;
+        "OTP_SEND": string;
+        "OTP_VERIFIED": string;
         "INVALID_PROVIDER": string;
         "SOMETHING_WRONG": string;
         "SUCCESS": string;
+        "NAME_REQUIRED": string;
+        "DASHBOARD_NAME_ALREADY_EXISTS": string;
     };
 };
 /* prettier-ignore */
