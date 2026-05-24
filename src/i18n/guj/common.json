@@ -18,5 +18,6 @@
     "TITLE_REQUIRED": "title is required",
     "TYPE_REQUIRED": "type is required",
     "INVALID_CIID": "Invalid ciid",
-    "CATEGORY_CREATED": "category created successfully"
+    "CATEGORY_CREATED": "category created successfully",
+    "CATEGORY_EXIST": "this category title already exist"
 }

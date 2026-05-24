@@ -1,6 +1,7 @@
 import { tr } from './../../../node_modules/make-plural/cardinals.d';
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { DashboardEntity } from "./dahsboard/dashboard.entity";
+import { ExpenseCategoryEntity, IncomeCategoryEntity } from '../category/category.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -24,4 +25,11 @@ export class UserEntity {
 
     @OneToMany(() => DashboardEntity, (dashboard) => dashboard.user)
     dahsboards!: DashboardEntity[]
+
+
+    @OneToMany(() => IncomeCategoryEntity, (income) => income.user)
+    incomeCategories!: IncomeCategoryEntity[]
+
+    @OneToMany(() => ExpenseCategoryEntity, (expense) => expense.user)
+    expenseCategories!: ExpenseCategoryEntity[]
 }

@@ -1,12 +1,13 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 import { CategoryIconEntity } from "../option/category-icon.entity";
+import { UserEntity } from "../user/user.entity";
 
 @Entity('income_category')
 export class IncomeCategoryEntity {
     @PrimaryColumn({ type: 'varchar', length: 50 })
     cid!: string
 
-    @Column({ type: 'varchar', length: 50 })
+    @Column({ type: 'varchar', length: 50, unique: true })
     title!: string
 
     @ManyToOne(() => CategoryIconEntity, (icon) => icon.incomeCategories, {
@@ -14,6 +15,12 @@ export class IncomeCategoryEntity {
     })
     @JoinColumn({ name: 'ciid' })
     icon!: CategoryIconEntity
+
+    @ManyToOne(() => UserEntity, (icon) => icon.incomeCategories, {
+        onDelete: 'CASCADE'
+    })
+    @JoinColumn({ name: 'uid' })
+    user!: UserEntity
 }
 
 @Entity('expense_category')
@@ -21,7 +28,7 @@ export class ExpenseCategoryEntity {
     @PrimaryColumn({ type: 'varchar', length: 50 })
     cid!: string
 
-    @Column({ type: 'varchar', length: 50 })
+    @Column({ type: 'varchar', length: 50, unique: true })
     title!: string
 
     @ManyToOne(() => CategoryIconEntity, (icon) => icon.expenseCategories, {
@@ -29,4 +36,10 @@ export class ExpenseCategoryEntity {
     })
     @JoinColumn({ name: 'ciid' })
     icon!: CategoryIconEntity
+
+    @ManyToOne(() => UserEntity, (icon) => icon.expenseCategories, {
+        onDelete: 'CASCADE'
+    })
+    @JoinColumn({ name: 'uid' })
+    user!: UserEntity
 }

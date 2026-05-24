@@ -26,7 +26,7 @@ export class CategoryController {
         @I18n() i18n: I18nContext,
         @Body() body: CategoryDto
     ) {
-        const data = await this.categoryService.createCategory(body, i18n)
+        const data = await this.categoryService.createCategory(user.uid, body, i18n)
         return {
             statusCode: 201,
             message: i18n.t('common.CATEGORY_CREATED'),

@@ -20,18 +20,19 @@ export class CategoryService {
         private readonly optionService: OptionService
     ) { }
 
-    async createCategory(categoryDto: CategoryDto, i18n: I18nContext) {
+    async createCategory(uid: string, categoryDto: CategoryDto, i18n: I18nContext) {
         await this.validateCategory(categoryDto, i18n)
 
         if (categoryDto.categoryType === CategoryType.INCOME) {
             const data = this.incomeRepo.create({
                 cid: generateUniqueId('C'),
                 title: categoryDto.title,
-                icon: { ciid: categoryDto.ciid }
+                icon: { ciid: categoryDto.ciid },
+                user: { uid: uid }
             })
 
             const category = await this.incomeRepo.save(data)
-            const result = this.incomeRepo.findOne({
+            const result = await this.incomeRepo.findOne({
                 where: { cid: category.cid },
                 relations: { icon: true }
             })
@@ -41,11 +42,12 @@ export class CategoryService {
             const data = this.expenseRepo.create({
                 cid: generateUniqueId('C'),
                 title: categoryDto.title,
-                icon: { ciid: categoryDto.ciid }
+                icon: { ciid: categoryDto.ciid },
+                user: { uid: uid }
             })
 
-            const category = await this.incomeRepo.save(data)
-            const result = this.incomeRepo.findOne({
+            const category = await this.expenseRepo.save(data)
+            const result = await this.expenseRepo.findOne({
                 where: { cid: category.cid },
                 relations: { icon: true }
             })
@@ -70,6 +72,16 @@ export class CategoryService {
 
         if (!categoryDto.title) {
             throw new BadRequestException(i18n.t('common.TITLE_REQUIRED'))
+        }
+
+        const categoryExist = await this.incomeRepo.findOne({
+            where: {
+                title: categoryDto.title
+            }
+        })
+        console.log("categoryExist", categoryExist)
+        if (categoryExist) {
+            throw new BadRequestException(i18n.t('common.CATEGORY_EXIST'))
         }
     }
 }

@@ -26,6 +26,7 @@ export type I18nTranslations = {
         "TYPE_REQUIRED": string;
         "INVALID_CIID": string;
         "CATEGORY_CREATED": string;
+        "CATEGORY_EXIST": string;
     };
 };
 /* prettier-ignore */

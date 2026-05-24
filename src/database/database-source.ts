@@ -17,7 +17,7 @@ export const databaseSourceOption: DataSourceOptions = {
     entities: [
         __dirname + '/../**/*.entity{.ts,.js}'
     ],
-    synchronize: false,
+    synchronize: true,
 }
 
 export const dataSource = new DataSource(databaseSourceOption)
