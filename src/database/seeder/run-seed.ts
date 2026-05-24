@@ -14,7 +14,7 @@ export const runSeed = async () => {
     await runSeeders(dataSource, {
         seeds: [
             IncExpCategoriesIconSeeder,
-            IncExpCategoriesSeeder
+            //IncExpCategoriesSeeder
         ]
     });
     console.log('✅ Seeding completed');
