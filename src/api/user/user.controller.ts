@@ -17,7 +17,7 @@ export class UserController {
 
     @Get('user')
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get other users details' })
+    @ApiOperation({ summary: 'Get users details' })
     @UseGuards(AuthGuard)
     async getUser(
         @DeviceContext() user: UserDto,

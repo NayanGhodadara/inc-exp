@@ -57,8 +57,20 @@ export class UserService {
         uid: uid
       }
     });
-    if (!user) return null;
-    return user;
+    const dashboard = await this.getUserDashboardByUid(uid)
+    const userDetail = { ...user, dashboard }
+    if (!userDetail) return null;
+    return userDetail;
+  }
+
+  async getUserDashboardByUid(uid: string) {
+    const dashboardList = await this.dashboardRepo.find({
+      where: {
+        user: { uid: uid }
+      }
+    });
+    if (!dashboardList) return null;
+    return dashboardList;
   }
 
   async getUserByEmail(email: string) {
