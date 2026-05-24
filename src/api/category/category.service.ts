@@ -56,6 +56,34 @@ export class CategoryService {
         }
     }
 
+    async getAllCategories(uid: string, skip: number, take: number, type: string) {
+        let query;
+
+        switch (type) {
+
+            case CategoryType.INCOME:
+                query = this.incomeRepo.createQueryBuilder('category');
+                break;
+
+            case CategoryType.EXPENSE:
+                query = this.expenseRepo.createQueryBuilder('category');
+                break;
+
+            default:
+                throw new BadRequestException('Invalid category type');
+        }
+
+        const [data, total] = await query
+            .leftJoin('category.user', 'user')
+            .leftJoinAndSelect('category.icon', 'icon')
+            .where('user.uid = :uid', { uid })
+            .skip(skip)
+            .take(take)
+            .getManyAndCount();
+
+        return { data, total };
+    }
+
 
     async validateCategory(categoryDto: CategoryDto, i18n: I18nContext) {
         if (!categoryDto.categoryType) {
