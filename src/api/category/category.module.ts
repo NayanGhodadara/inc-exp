@@ -11,7 +11,8 @@ import { OptionModule } from "../option/option.module";
         OptionModule
     ],
     controllers: [CategoryController],
-    providers: [CategoryService]
+    providers: [CategoryService],
+    exports: [CategoryService]
 })
 export class CategoryModule {
 

@@ -84,6 +84,28 @@ export class CategoryService {
         return { data, total };
     }
 
+    async getAllIncomeCategoryByUid(uid: string) {
+
+        const query = this.incomeRepo.createQueryBuilder('category');
+        const data = await query
+            .leftJoin('category.user', 'user')
+            .leftJoinAndSelect('category.icon', 'icon')
+            .where('user.uid = :uid', { uid })
+            .getMany();
+
+        return data;
+    }
+
+    async getAllExpenseCategoryByUid(uid: string) {
+        const query = this.expenseRepo.createQueryBuilder('category');
+        const data = await query
+            .leftJoin('category.user', 'user')
+            .leftJoinAndSelect('category.icon', 'icon')
+            .where('user.uid = :uid', { uid })
+            .getMany();
+
+        return data;
+    }
 
     async validateCategory(categoryDto: CategoryDto, i18n: I18nContext) {
         if (!categoryDto.categoryType) {

@@ -2,6 +2,7 @@ import { tr } from './../../../node_modules/make-plural/cardinals.d';
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { DashboardEntity } from "./dahsboard/dashboard.entity";
 import { ExpenseCategoryEntity, IncomeCategoryEntity } from '../category/category.entity';
+import { TransactionEntity } from '../transaction/transaction.entity';
 
 @Entity('user')
 export class UserEntity {
@@ -20,7 +21,13 @@ export class UserEntity {
     @Column({ type: 'boolean', default: false })
     isProfileSetup!: string
 
-    @Column({ type: 'bigint', nullable: true })
+    @Column({
+        type: 'bigint', nullable: true,
+        transformer: {
+            to: (value: number) => value,
+            from: (value: string) => Number(value),
+        },
+    })
     createdAt!: number
 
     @OneToMany(() => DashboardEntity, (dashboard) => dashboard.user)
@@ -32,4 +39,7 @@ export class UserEntity {
 
     @OneToMany(() => ExpenseCategoryEntity, (expense) => expense.user)
     expenseCategories!: ExpenseCategoryEntity[]
+
+    @OneToMany(() => TransactionEntity, (transaction) => transaction.user)
+    transaction!: TransactionEntity[]
 }

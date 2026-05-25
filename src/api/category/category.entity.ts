@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 import { CategoryIconEntity } from "../option/category-icon.entity";
 import { UserEntity } from "../user/user.entity";
+import { TransactionEntity } from "../transaction/transaction.entity";
 
 @Entity('income_category')
 export class IncomeCategoryEntity {
@@ -21,6 +22,9 @@ export class IncomeCategoryEntity {
     })
     @JoinColumn({ name: 'uid' })
     user!: UserEntity
+
+    @OneToMany(() => TransactionEntity, (transaction) => transaction.incomeCategory)
+    transactions!: TransactionEntity[]
 }
 
 @Entity('expense_category')
@@ -42,4 +46,7 @@ export class ExpenseCategoryEntity {
     })
     @JoinColumn({ name: 'uid' })
     user!: UserEntity
+
+    @OneToMany(() => TransactionEntity, (transaction) => transaction.expenseCategory)
+    transactions!: TransactionEntity[]
 }

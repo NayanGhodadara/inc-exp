@@ -11,6 +11,7 @@ import { TokenModule } from './auth/token/token.module';
 import { UserModule } from './user/user.module';
 import { CategoryModule } from './category/category.module';
 import { OptionModule } from './option/option.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 
 @Module({
@@ -43,7 +44,8 @@ import { OptionModule } from './option/option.module';
     TokenModule,
     UserModule,
     CategoryModule,
-    OptionModule
+    OptionModule,
+    TransactionModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -19,5 +19,14 @@
     "TYPE_REQUIRED": "type is required",
     "INVALID_CIID": "Invalid ciid",
     "CATEGORY_CREATED": "category created successfully",
-    "CATEGORY_EXIST": "this category title already exist"
+    "CATEGORY_EXIST": "this category title already exist",
+    "AMOUNT_REQUIRED": "amount is required",
+    "CID_REQUIRED": "CID is required",
+    "DID_REQUIRED": "DID is required",
+    "METHOD_REQUIRED": "payment method is required",
+    "TRANSACTION_METHOD_REQUIRED": "transaction method is required",
+    "INVALID_PAYMENT_METHOD": "Invalid payment method",
+    "INVALID_TRANSACTION_METHOD": "Invalid transaction method",
+    "DASHBOARD_NOT_FOUND": "Dashboard not found",
+    "INVALID_CATEGORY_ID": "Invalid category Id"
 }

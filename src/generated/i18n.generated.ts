@@ -27,6 +27,15 @@ export type I18nTranslations = {
         "INVALID_CIID": string;
         "CATEGORY_CREATED": string;
         "CATEGORY_EXIST": string;
+        "AMOUNT_REQUIRED": string;
+        "CID_REQUIRED": string;
+        "DID_REQUIRED": string;
+        "METHOD_REQUIRED": string;
+        "TRANSACTION_METHOD_REQUIRED": string;
+        "INVALID_PAYMENT_METHOD": string;
+        "INVALID_TRANSACTION_METHOD": string;
+        "DASHBOARD_NOT_FOUND": string;
+        "INVALID_CATEGORY_ID": string;
     };
 };
 /* prettier-ignore */

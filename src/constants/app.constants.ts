@@ -9,5 +9,12 @@ export enum CategoryType {
     EXPENSE = 'expense'
 }
 
+export enum PaymentMethod {
+    BANK = 'bank',
+    CARD = 'card',
+    CASH = 'cash',
+    OTHER = 'other'
+}
+
 export const DEFAULT_LIMIT = 10
 export const DEFAULT_COUNT = 0
