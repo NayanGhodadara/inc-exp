@@ -81,7 +81,7 @@ export class AuthService {
             throw new BadRequestException(i18n.t('common.EMAIL_REQUIRED'))
         }
 
-        await this.sendMail(loginDto.email);
+        //await this.sendMail(loginDto.email);
 
         return null;
     }
