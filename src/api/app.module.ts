@@ -12,6 +12,7 @@ import { UserModule } from './user/user.module';
 import { CategoryModule } from './category/category.module';
 import { OptionModule } from './option/option.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { RedisModule } from './auth/redis/redis.module';
 
 
 @Module({
@@ -41,6 +42,7 @@ import { TransactionModule } from './transaction/transaction.module';
       ],
     }),
     AuthModule,
+    RedisModule,
     TokenModule,
     UserModule,
     CategoryModule,

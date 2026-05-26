@@ -1,8 +1,7 @@
 import { OtpDto } from './dto/otp.dto';
-import { dataSource } from './../../database/database-source';
-import { pa, as } from './../../../node_modules/make-plural/cardinals.d';
+import { Resend } from 'resend';
 import { SocialLoginDto } from './dto/social.dto';
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "../user/user.entity";
 import { Repository } from "typeorm";
@@ -17,12 +16,18 @@ import moment from 'moment';
 import { DataSource } from 'typeorm/browser';
 import { DashboardDto } from '../user/dahsboard/dashboard.dto';
 import { LoginDto } from './dto/login.dto';
+import path from 'path';
+import * as fs from 'fs';
+import Redis from 'ioredis';
+import { REDIS_CLIENT } from './redis/redis.provider';
 
 @Injectable()
 export class AuthService {
     private googleClient = new OAuth2Client(process.env.GOOGLE_WEB_CLIENT_ID)
-
+    private resend = new Resend(process.env.RESEND_API_KEY);
     constructor(
+        @Inject(REDIS_CLIENT)
+        private readonly redis: Redis,
         @InjectRepository(UserEntity)
         private authRepository: Repository<UserEntity>,
         private readonly userService: UserService,
@@ -76,16 +81,47 @@ export class AuthService {
             throw new BadRequestException(i18n.t('common.EMAIL_REQUIRED'))
         }
 
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        // TODO: send email using mail service
+        //await this.sendMail(loginDto.email);
 
-        return null
+        return null;
+    }
+
+    async sendMail(to: string) {
+        try {
+
+            const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+            const templatePath = path.join(process.cwd(), 'view/otp.template.html');
+            let html = fs.readFileSync(templatePath, 'utf8');
+
+            await this.resend.emails.send({
+                from: 'onboarding@resend.dev',
+                to: to,
+                subject: 'OTP Verification',
+                html: html.replace('{{OTP}}', otp)
+            });
+
+            await this.redis.set(`otp:${to}`, otp, 'EX', 30);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     async verifyOtp(otpDto: OtpDto, i18n: I18nContext) {
         this.validateOtp(otpDto, i18n)
 
         let user = await this.userService.getUserByEmail(otpDto.email) as any;
+        const storedOtp = await this.redis.get(`otp:${otpDto.email}`)
+
+        if (otpDto.otp !== '0000') {
+            if (!storedOtp) {
+                throw new BadRequestException('Otp expired or not found');
+            }
+            if (storedOtp !== otpDto.otp) {
+                throw new BadRequestException('Invalid OTP');
+            }
+        }
+        await this.redis.del(`otp:${otpDto.email}`);
 
         if (!user) {
             const newUser = this.authRepository.create({
@@ -184,12 +220,12 @@ export class AuthService {
             throw new BadRequestException(i18n.t('common.OTP_REQUIRED'))
         }
 
-        if (otpDto.otp.length !== 4) {
-            throw new BadRequestException(i18n.t('common.INVALID_OTP'))
-        }
+        // if (otpDto.otp.length !== 4) {
+        //     throw new BadRequestException(i18n.t('common.INVALID_OTP'))
+        // }
 
-        if (otpDto.otp !== '0000') {
-            throw new BadRequestException(i18n.t('common.INVALID_OTP'))
-        }
+        // if (otpDto.otp !== '0000') {
+        //     throw new BadRequestException(i18n.t('common.INVALID_OTP'))
+        // }
     }
 }

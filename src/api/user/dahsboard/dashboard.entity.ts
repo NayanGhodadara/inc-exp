@@ -8,7 +8,7 @@ export class DashboardEntity {
     @PrimaryColumn({ type: 'varchar', length: 50 })
     did!: string
 
-    @Column({ type: 'varchar', length: 50, unique: true })
+    @Column({ type: 'varchar', length: 50, unique: false })
     name!: string
 
     @ManyToOne(() => UserEntity, (user) => user.dahsboards, {

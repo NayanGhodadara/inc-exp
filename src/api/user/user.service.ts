@@ -29,7 +29,10 @@ export class UserService {
     }
 
     const existingDashboard = await this.dashboardRepo.findOne({
-      where: { name: dashboardDto.name }
+      where: {
+        name: dashboardDto.name,
+        user: { uid: uid }
+      }
     })
 
     if (existingDashboard) {
