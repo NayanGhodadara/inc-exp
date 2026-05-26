@@ -48,15 +48,19 @@ export class TransactionController {
     @ApiOperation({ summary: 'Get all auth user categories' })
     @ApiQuery({ name: 'count', required: false, type: 'number' })
     @ApiQuery({ name: 'limit', required: false, type: 'number' })
+    @ApiQuery({ name: 'fromDate', type: 'number', required: false })
+    @ApiQuery({ name: 'toDate', type: 'number', required: false })
     @ApiQuery({ name: 'did', type: 'string', example: 'D123df3e0230023', required: true })
     async getAllCategory(
         @I18n() i18n: I18nContext,
         @DeviceContext() user: UserDto,
         @Query('count', new DefaultValuePipe(DEFAULT_COUNT), ParseIntPipe) count: number,
         @Query('limit', new DefaultValuePipe(DEFAULT_LIMIT), ParseIntPipe) limit: number,
+        @Query('fromDate', new DefaultValuePipe(0), ParseIntPipe) fromDate: number,
+        @Query('toDate', new DefaultValuePipe(0), ParseIntPipe) toDate: number,
         @Query('did') did: string
     ) {
-        const { data, total } = await this.transactionService.getAllTransaction(user.uid, count, limit, did)
+        const { data, total } = await this.transactionService.getAllTransaction(user.uid, count, limit, did, fromDate, toDate)
 
         return {
             statusCode: 200,

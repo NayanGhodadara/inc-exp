@@ -63,9 +63,10 @@ export class TransactionService {
     }
 
 
-    async getAllTransaction(uid: string, skip: number, take: number, did: string) {
-        let query = this.transactionRepository.createQueryBuilder('transaction');
-        const [data, total] = await query
+    async getAllTransaction(uid: string, skip: number, take: number, did: string, fromDate: number, toDate: number) {
+        const startDate = moment.utc(fromDate).valueOf();
+        const endDate = moment.utc(toDate).valueOf();
+        let query = this.transactionRepository.createQueryBuilder('transaction')
             .leftJoin('transaction.user', 'user')
             .leftJoin('transaction.dashboard', 'dashboard')
             .leftJoinAndSelect('transaction.incomeCategory', 'incomeCategory')
@@ -73,7 +74,15 @@ export class TransactionService {
             .leftJoinAndSelect('transaction.expenseCategory', 'expenseCategory')
             .leftJoinAndSelect('expenseCategory.icon', 'expenseIcon')
             .where('user.uid = :uid', { uid })
-            .andWhere('dashboard.did = :did', { did })
+            .andWhere('dashboard.did = :did', { did });
+
+        if (fromDate !== 0 && toDate !== 0) {
+            query.andWhere('transaction.createdAt BETWEEN :startDate AND :endDate', {
+                startDate, endDate
+            })
+        }
+
+        const [data, total] = await query
             .skip(skip)
             .take(take)
             .getManyAndCount();
