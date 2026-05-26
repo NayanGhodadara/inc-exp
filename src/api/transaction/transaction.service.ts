@@ -1,3 +1,4 @@
+import { da } from 'make-plural/cardinals';
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionEntity } from "./transaction.entity";
@@ -87,7 +88,15 @@ export class TransactionService {
             .take(take)
             .getManyAndCount();
 
-        return { data, total };
+
+        const income = data
+            .filter((item) => item.transactionMethod === CategoryType.INCOME)
+            .reduce((sum, earning) => sum + Number(earning.amount), 0)
+        const expense = data
+            .filter((item) => item.transactionMethod === CategoryType.EXPENSE)
+            .reduce((sum, expense) => sum + Number(expense.amount), 0)
+        const balance = income - expense
+        return { data, total, income, expense, balance };
     }
 
     async validateTransaction(uid: string, i18n: I18nContext, transactionDto: TransactionDto) {

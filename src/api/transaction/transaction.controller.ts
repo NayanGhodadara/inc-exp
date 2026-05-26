@@ -60,12 +60,17 @@ export class TransactionController {
         @Query('toDate', new DefaultValuePipe(0), ParseIntPipe) toDate: number,
         @Query('did') did: string
     ) {
-        const { data, total } = await this.transactionService.getAllTransaction(user.uid, count, limit, did, fromDate, toDate)
+        const { data, total, income, expense, balance } = await this.transactionService.getAllTransaction(user.uid, count, limit, did, fromDate, toDate)
 
         return {
             statusCode: 200,
             message: i18n.t('common.SUCCESS'),
             data: data,
+            wallet: {
+                totalEarning: income,
+                totalExpense: expense,
+                balance: balance
+            },
             meta: {
                 "totalItems": total,
                 "itemPerPage": limit,
