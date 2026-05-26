@@ -81,7 +81,7 @@ export class AuthService {
             throw new BadRequestException(i18n.t('common.EMAIL_REQUIRED'))
         }
 
-        //await this.sendMail(loginDto.email);
+        await this.sendMail(loginDto.email);
 
         return null;
     }
@@ -111,17 +111,15 @@ export class AuthService {
         this.validateOtp(otpDto, i18n)
 
         let user = await this.userService.getUserByEmail(otpDto.email) as any;
-        const storedOtp = await this.redis.get(`otp:${otpDto.email}`)
+        // const storedOtp = await this.redis.get(`otp:${otpDto.email}`)
 
-        if (otpDto.otp !== '0000') {
-            if (!storedOtp) {
-                throw new BadRequestException('Otp expired or not found');
-            }
-            if (storedOtp !== otpDto.otp) {
-                throw new BadRequestException('Invalid OTP');
-            }
-        }
-        await this.redis.del(`otp:${otpDto.email}`);
+        // if (!storedOtp) {
+        //     throw new BadRequestException('Otp expired or not found');
+        // }
+        // if (storedOtp !== otpDto.otp) {
+        //     throw new BadRequestException('Invalid OTP');
+        // }
+        // await this.redis.del(`otp:${otpDto.email}`);
 
         if (!user) {
             const newUser = this.authRepository.create({
@@ -220,9 +218,9 @@ export class AuthService {
             throw new BadRequestException(i18n.t('common.OTP_REQUIRED'))
         }
 
-        // if (otpDto.otp.length !== 4) {
-        //     throw new BadRequestException(i18n.t('common.INVALID_OTP'))
-        // }
+        if (otpDto.otp.length !== 4) {
+            throw new BadRequestException(i18n.t('common.INVALID_OTP'))
+        }
 
         // if (otpDto.otp !== '0000') {
         //     throw new BadRequestException(i18n.t('common.INVALID_OTP'))
