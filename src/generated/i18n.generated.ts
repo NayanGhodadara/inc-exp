@@ -36,6 +36,7 @@ export type I18nTranslations = {
         "INVALID_TRANSACTION_METHOD": string;
         "DASHBOARD_NOT_FOUND": string;
         "INVALID_CATEGORY_ID": string;
+        "LOGOUT_SUCCESS": string;
     };
 };
 /* prettier-ignore */

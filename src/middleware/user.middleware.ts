@@ -7,3 +7,10 @@ export const DeviceContext = createParamDecorator(
         return req.user
     }
 )
+
+export const TokenContext = createParamDecorator(
+    (data: unknown, ctx: ExecutionContext): UserDto => {
+        const req = ctx.switchToHttp().getRequest();
+        return req.token
+    }
+)

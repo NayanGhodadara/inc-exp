@@ -13,8 +13,6 @@ import { dateToTimestamp, generateUniqueId } from '../../utils/app.utils';
 import { ProviderType } from '../../constants/app.constants';
 import { TokenService } from './token/token.service';
 import moment from 'moment';
-import { DataSource } from 'typeorm/browser';
-import { DashboardDto } from '../user/dahsboard/dashboard.dto';
 import { LoginDto } from './dto/login.dto';
 import path from 'path';
 import * as fs from 'fs';
@@ -84,6 +82,11 @@ export class AuthService {
         //await this.sendMail(loginDto.email);
 
         return null;
+    }
+
+    async logout(token: string, i18n: I18nContext) {
+        await this.tokenService.blockToken(token, i18n)
+        return null
     }
 
     async sendMail(to: string) {

@@ -1,10 +1,21 @@
 import jwt from 'jsonwebtoken';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
-import { Observable } from "rxjs";
+import { TokenService } from '../api/auth/token/token.service';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+    constructor(
+        private readonly moduleRef: ModuleRef,
+    ) { }
+
+    async canActivate(
+        context: ExecutionContext,
+    ): Promise<boolean> {
+        const tokenService = this.moduleRef.get(TokenService, {
+            strict: false,
+        });
+
         const request = context.switchToHttp().getRequest();
         const authorization = request.headers.authorization;
 
@@ -16,6 +27,11 @@ export class AuthGuard implements CanActivate {
 
         if (type !== 'Bearer' || !token) {
             throw new UnauthorizedException('Invalid token format');
+        }
+
+        const isTokenLogout = await tokenService.isBlocked(token);
+        if (isTokenLogout) {
+            throw new UnauthorizedException('Unauthorized');
         }
 
         try {

@@ -28,5 +28,6 @@
     "INVALID_PAYMENT_METHOD": "Invalid payment method",
     "INVALID_TRANSACTION_METHOD": "Invalid transaction method",
     "DASHBOARD_NOT_FOUND": "Dashboard not found",
-    "INVALID_CATEGORY_ID": "Invalid category Id"
+    "INVALID_CATEGORY_ID": "Invalid category Id",
+    "LOGOUT_SUCCESS": "Logout successfully"
 }

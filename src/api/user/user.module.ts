@@ -7,8 +7,7 @@ import { DashboardEntity } from "./dahsboard/dashboard.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, DashboardEntity]),
-    TypeOrmModule
+    TypeOrmModule.forFeature([UserEntity, DashboardEntity])
   ],
   controllers: [UserController],
   providers: [UserService],

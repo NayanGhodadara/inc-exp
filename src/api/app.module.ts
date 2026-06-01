@@ -47,7 +47,7 @@ import { RedisModule } from './auth/redis/redis.module';
     UserModule,
     CategoryModule,
     OptionModule,
-    TransactionModule
+    TransactionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

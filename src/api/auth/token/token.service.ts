@@ -1,12 +1,19 @@
 import { SignOptions } from './../../../../node_modules/@types/jsonwebtoken/index.d';
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { InjectRepository } from '@nestjs/typeorm';
 import jwt from "jsonwebtoken";
+import { TokenEntity } from './token.entity';
+import { Repository } from 'typeorm';
+import { generateUniqueId } from '../../../utils/app.utils';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class TokenService {
 
     constructor(
+        @InjectRepository(TokenEntity)
+        private tokenRepository: Repository<TokenEntity>,
         private readonly jwtService: JwtService
     ) { }
 
@@ -43,6 +50,29 @@ export class TokenService {
             return decoded;
         } catch (err) {
             return null;
+        }
+    }
+
+    async blockToken(token: string, i18n: I18nContext) {
+        if (!token) {
+            throw new BadRequestException(i18n.t('common.TOKEN_REQUIRED'))
+        }
+        await this.tokenRepository.save({
+            bid: generateUniqueId('B'),
+            token: token
+        })
+
+        return null
+    }
+
+    async isBlocked(token: string) {
+        const data = await this.tokenRepository.findOne(
+            { where: { token: token } }
+        )
+        if (data) {
+            return true
+        } else {
+            return false
         }
     }
 }
