@@ -1,7 +1,7 @@
 import { da } from 'make-plural/cardinals';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiProduces, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
-import { Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, DefaultValuePipe, Delete, Get, Header, Param, ParseIntPipe, Post, Query, Res, StreamableFile, UseGuards } from "@nestjs/common";
 import { LoginDto } from '../auth/dto/login.dto';
 import { AuthGuard } from '../../guard/auth.guard';
 import { TransactionDto } from './transaction.dto';
@@ -102,5 +102,34 @@ export class TransactionController {
             message: i18n.t('common.SUCCESS'),
             data: data
         }
+    }
+
+
+    @Get('transaction/download-report/:did')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @Header('Content-Type', 'application/pdf')
+    @Header(
+        'Content-Disposition',
+        'attachment; filename="expense-report.pdf"',
+    )
+    @ApiProduces('application/pdf')
+    @ApiParam({ name: 'did', required: true, description: 'Dashboard id' })
+    @ApiQuery({ name: 'fromDate', type: Number, required: false, })
+    @ApiQuery({ name: 'toDate', type: Number, required: false, })
+    async downloadReport(
+        @DeviceContext() user: UserDto,
+        @Param('did') did: string,
+        @Query('fromDate', new DefaultValuePipe(0), ParseIntPipe) fromDate: number,
+        @Query('toDate', new DefaultValuePipe(0), ParseIntPipe) toDate: number,
+    ): Promise<StreamableFile> {
+        const pdfBuffer = await this.transactionService.generateReport(
+            user.uid,
+            did,
+            fromDate,
+            toDate,
+        );
+
+        return new StreamableFile(pdfBuffer);
     }
 }

@@ -96,6 +96,15 @@ export class HomeService {
         return dashboardList;
     }
 
+    async getDashboardDetail(did: string) {
+        const dashboardDetail = await this.dashboardRepo.findOne({
+            where: {
+                did: did
+            }
+        });
+        return dashboardDetail;
+    }
+
     async getAllDashboards(uid: string, skip: number, take: number) {
         let query = this.dashboardRepo.createQueryBuilder('dashboard')
             .leftJoin('dashboard.user', 'user')

@@ -1,4 +1,3 @@
-import { da } from 'make-plural/cardinals';
 import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionEntity } from "./transaction.entity";
@@ -8,12 +7,12 @@ import { I18nContext } from "nestjs-i18n";
 import { UserDto } from "../user/dto/user.dto";
 import { CategoryType, PaymentMethod } from "../../constants/app.constants";
 import { dateToTimestamp, generateUniqueId } from "../../utils/app.utils";
-import { UserService } from "../user/user.service";
 import { CategoryService } from "../category/category.service";
 import moment from "moment";
 import { HomeService } from '../home/home.service';
-import { fr } from 'make-plural';
-import { from } from 'rxjs';
+import * as fs from 'fs';
+import path from "path";
+import puppeteer from 'puppeteer';
 
 @Injectable()
 export class TransactionService {
@@ -85,7 +84,7 @@ export class TransactionService {
         return true;
     }
 
-    async getAllTransaction(uid: string, skip: number, take: number, did: string, fromDate: number, toDate: number) {
+    async getAllTransaction(uid: string, skip: number, take: number, did: string, fromDate: number, toDate: number, fetchAll = false) {
         const startDate = moment.utc(fromDate).valueOf();
         const endDate = moment.utc(toDate).valueOf();
         let query = this.transactionRepository.createQueryBuilder('transaction')
@@ -104,9 +103,11 @@ export class TransactionService {
             })
         }
 
+        if (!fetchAll) {
+            query.skip(skip).take(take);
+        }
+
         const [data, total] = await query
-            .skip(skip)
-            .take(take)
             .getManyAndCount();
 
 
@@ -155,6 +156,86 @@ export class TransactionService {
             totalExpense,
             balance: totalEarning - totalExpense,
         };
+    }
+
+    async generateReport(
+        uid: string,
+        did: string,
+        fromDate?: number,
+        toDate?: number,
+    ): Promise<Buffer> {
+
+        const {
+            data, income, expense, balance,
+        } = await this.getAllTransaction(uid, 0, 0, did, fromDate ?? 0, toDate ?? 0, true,);
+        const dashboard = await this.homeService.getDashboardDetail(did)
+
+        const templatePath = path.join(process.cwd(), 'view', 'report.template.html',);
+        let html = fs.readFileSync(templatePath, 'utf8');
+
+
+        const rows = data.map((item, index) => {
+            console.log('item', item.incomeCategory, item.expenseCategory)
+            const category =
+                item.incomeCategory?.title ??
+                item.expenseCategory?.title ??
+                '-';
+
+            return `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${moment(item.createdAt).format('DD MMM YYYY')}</td>
+            <td>${category}</td>
+            <td>${item.paymentMethod}</td>
+            <td>${item.transactionMethod == CategoryType.INCOME ? 'Income' : 'Expense'}</td>
+            <td style="text-align:right"
+                class="${item.transactionMethod === CategoryType.INCOME
+                    ? 'amount-income'
+                    : 'amount-expense'}">
+                ₹${item.amount}
+            </td>
+        </tr>
+    `;
+        }).join('');
+
+        html = html
+            .replace('{{income}}', income.toString())
+            .replace('{{expense}}', expense.toString())
+            .replace('{{balance}}', balance.toString())
+            .replace('{{dashboardName}}', dashboard?.name ?? '-')
+            .replace('{{generatedDate}}', new Date(moment().toDate()).toLocaleDateString())
+            .replace(
+                '{{fromDate}}',
+                fromDate
+                    ? new Date(fromDate).toLocaleDateString()
+                    : 'All Time',
+            )
+            .replace(
+                '{{toDate}}',
+                toDate
+                    ? new Date(toDate).toLocaleDateString()
+                    : 'Today',
+            )
+            .replace('{{transactions}}', rows);
+
+        const browser = await puppeteer.launch({
+            headless: true,
+        });
+
+        const page = await browser.newPage();
+
+        await page.setContent(html, {
+            waitUntil: 'load',
+        });
+
+        const pdf = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+        });
+
+        await browser.close();
+
+        return Buffer.from(pdf);
     }
 
     async validateTransaction(uid: string, i18n: I18nContext, transactionDto: TransactionDto) {
