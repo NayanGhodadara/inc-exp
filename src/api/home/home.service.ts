@@ -32,18 +32,27 @@ export class HomeService {
         const endDate = moment().endOf('month').valueOf();
 
         const {
-            totalEarning,
-            totalExpense,
-            balance
-        } = await this.transactionService.getSummaryOfTransaction(uid, dashboardDetail?.did || '', startDate, endDate);
+            data,
+            total,
+            income,
+            expense,
+            balance,
+            startUtc,
+            endUtc
+        } = await this.transactionService.getAllTransaction(uid, 0, 5, dashboardDetail?.did || '', startDate, endDate)
 
         return {
-            dashboard: dashboardDetail,
+            dashboard: {
+                ...dashboardDetail,
+            },
+            transaction: data,
             wallet: {
-                totalEarning: totalEarning,
-                totalExpense: totalExpense,
+                fromDate: startUtc,
+                toDate: endUtc,
+                totalEarning: income,
+                totalExpense: expense,
                 balance: balance
-            }
+            },
         }
     }
 

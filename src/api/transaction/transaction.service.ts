@@ -114,7 +114,7 @@ export class TransactionService {
         const income = summary.totalEarning
         const expense = summary.totalExpense
         const balance = summary.balance
-        return { data, total, income, expense, balance };
+        return { data, total, income, expense, balance, startUtc: fromDate === 0 ? null : fromDate, endUtc: toDate === 0 ? null : toDate };
     }
 
     async getSummaryOfTransaction(uid: string, did: string, fromDate: number = 0, toDate: number = 0) {

@@ -60,7 +60,7 @@ export class TransactionController {
         @Query('toDate', new DefaultValuePipe(0), ParseIntPipe) toDate: number,
         @Query('did') did: string
     ) {
-        const { data, total, income, expense, balance } = await this.transactionService.getAllTransaction(user.uid, count, limit, did, fromDate, toDate)
+        const { data, total, income, expense, balance, startUtc, endUtc } = await this.transactionService.getAllTransaction(user.uid, count, limit, did, fromDate, toDate)
 
         return {
             statusCode: 200,
@@ -68,6 +68,8 @@ export class TransactionController {
             data: {
                 transaction: data,
                 wallet: {
+                    fromDate: startUtc,
+                    toDate: endUtc,
                     totalEarning: income,
                     totalExpense: expense,
                     balance: balance
