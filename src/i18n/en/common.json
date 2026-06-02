@@ -29,5 +29,6 @@
     "INVALID_TRANSACTION_METHOD": "Invalid transaction method",
     "DASHBOARD_NOT_FOUND": "Dashboard not found",
     "INVALID_CATEGORY_ID": "Invalid category Id",
-    "LOGOUT_SUCCESS": "Logout successfully"
+    "LOGOUT_SUCCESS": "Logout successfully",
+    "TRANSACTION_NOT_FOUND": "Transaction not found"
 }

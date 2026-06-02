@@ -1,7 +1,7 @@
 import { da } from 'make-plural/cardinals';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
-import { Body, Controller, DefaultValuePipe, Get, ParseIntPipe, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from "@nestjs/common";
 import { LoginDto } from '../auth/dto/login.dto';
 import { AuthGuard } from '../../guard/auth.guard';
 import { TransactionDto } from './transaction.dto';
@@ -79,6 +79,26 @@ export class TransactionController {
                 "totalPage": Math.ceil(total / (limit)),
                 "currentCount": (count) + Number(data.length),
             }
+        }
+    }
+
+    @Delete('transaction/:tid')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @ApiOperation({
+        summary: 'Delete transaction'
+    })
+    @ApiParam({ name: 'tid', type: 'string', example: 'T123df3e0230023', required: true })
+    async deleteTransaction(
+        @DeviceContext() user: UserDto,
+        @I18n() i18n: I18nContext,
+        @Param('tid') tid: string
+    ) {
+        const data = await this.transactionService.deleteTransaction(user, tid, i18n)
+        return {
+            statusCode: 201,
+            message: i18n.t('common.SUCCESS'),
+            data: data
         }
     }
 }

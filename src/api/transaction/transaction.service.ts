@@ -68,12 +68,29 @@ export class TransactionService {
     }
 
 
+    async deleteTransaction(user: UserDto, tid: string, i18n: I18nContext) {
+        const transaction = await this.transactionRepository.findOne({
+            where: {
+                tid: tid,
+                user: { uid: user.uid }
+            }
+        })
+
+        if (!transaction) {
+            throw new BadRequestException(i18n.t('common.TRANSACTION_NOT_FOUND'))
+        }
+
+        await this.transactionRepository.delete({ tid: tid })
+
+        return true;
+    }
+
     async getAllTransaction(uid: string, skip: number, take: number, did: string, fromDate: number, toDate: number) {
         const startDate = moment.utc(fromDate).valueOf();
         const endDate = moment.utc(toDate).valueOf();
         let query = this.transactionRepository.createQueryBuilder('transaction')
             .leftJoin('transaction.user', 'user')
-            .leftJoin('transaction.dashboard', 'dashboard')
+            .leftJoinAndSelect('transaction.dashboard', 'dashboard')
             .leftJoinAndSelect('transaction.incomeCategory', 'incomeCategory')
             .leftJoinAndSelect('incomeCategory.icon', 'incomeIcon')
             .leftJoinAndSelect('transaction.expenseCategory', 'expenseCategory')

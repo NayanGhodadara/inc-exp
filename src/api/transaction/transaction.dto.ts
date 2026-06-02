@@ -17,6 +17,6 @@ export class TransactionDto {
     @ApiProperty({ type: 'string', enum: CategoryType })
     transactionMethod!: CategoryType
 
-    @ApiProperty({ type: 'string', example: 'Test' })
+    @ApiProperty({ type: 'string', example: 'Test', required: false })
     note!: string
 }
