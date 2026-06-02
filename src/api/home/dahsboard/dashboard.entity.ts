@@ -1,7 +1,7 @@
 import { tr } from './../../../../node_modules/make-plural/cardinals.d';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
-import { UserEntity } from "../user.entity";
 import { TransactionEntity } from '../../transaction/transaction.entity';
+import { UserEntity } from '../../user/user.entity';
 
 @Entity('dashboard')
 export class DashboardEntity {

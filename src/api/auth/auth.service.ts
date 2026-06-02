@@ -1,3 +1,4 @@
+import { HomeService } from './../home/home.service';
 import { OtpDto } from './dto/otp.dto';
 import { Resend } from 'resend';
 import { SocialLoginDto } from './dto/social.dto';
@@ -28,6 +29,7 @@ export class AuthService {
         private readonly redis: Redis,
         @InjectRepository(UserEntity)
         private authRepository: Repository<UserEntity>,
+        private readonly homeService: HomeService,
         private readonly userService: UserService,
         private readonly tokenService: TokenService
     ) {
@@ -63,7 +65,7 @@ export class AuthService {
             const dahsboard = {
                 name: user.name ?? 'Default dashboard'
             }
-            await this.userService.createDashboard(user.uid, dahsboard, i18n)
+            await this.homeService.createDashboard(user.uid, dahsboard, i18n)
         }
 
         const authorization = this.tokenService.createToken(user.uid);
@@ -125,6 +127,7 @@ export class AuthService {
         // await this.redis.del(`otp:${otpDto.email}`);
 
         if (!user) {
+            //Create user
             const newUser = this.authRepository.create({
                 uid: generateUniqueId("U"),
                 email: otpDto.email,
@@ -135,10 +138,22 @@ export class AuthService {
             } as any);
 
             user = await this.authRepository.save(newUser) as any;
-            const dahsboard = {
+
+            //Create dashbaord
+            const dahsboardDetail = {
                 name: user.name ?? 'Default dashboard'
             }
-            await this.userService.createDashboard(user.uid, dahsboard, i18n)
+            const dashboard = await this.homeService.createDashboard(user.uid, dahsboardDetail, i18n)
+
+            //Set default dashboard in user
+            await this.authRepository.save({
+                ...newUser,
+                defaultDashboard: { did: dashboard?.did }
+            })
+            user = await this.authRepository.findOne({
+                where: { uid: user.uid },
+                relations: { defaultDashboard: true }
+            })
         }
 
         const authorization = this.tokenService.createToken(user.uid);
@@ -192,6 +207,21 @@ export class AuthService {
             console.log(`error::---`, e)
             throw new BadRequestException(i18m.t('common.SOMETHING_WRONG'))
         }
+    }
+
+
+    async setDefaultDashboard(uid: string, did: string, i18n: I18nContext) {
+        const dashboard = await this.homeService.getUserDashboardByUid(uid)
+            .then(dashboards => dashboards?.find(d => d.did === did))
+
+        if (!dashboard) {
+            throw new BadRequestException(i18n.t('common.DASHBOARD_NOT_FOUND'))
+        }
+
+        await this.authRepository.update(
+            { uid: uid },
+            { defaultDashboard: dashboard }
+        )
     }
 
     private validateSocialLogin(socialLoginDto: SocialLoginDto, i18n: I18nContext): void {

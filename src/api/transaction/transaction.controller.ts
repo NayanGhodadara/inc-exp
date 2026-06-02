@@ -65,11 +65,13 @@ export class TransactionController {
         return {
             statusCode: 200,
             message: i18n.t('common.SUCCESS'),
-            data: data,
-            wallet: {
-                totalEarning: income,
-                totalExpense: expense,
-                balance: balance
+            data: {
+                transaction: data,
+                wallet: {
+                    totalEarning: income,
+                    totalExpense: expense,
+                    balance: balance
+                },
             },
             meta: {
                 "totalItems": total,

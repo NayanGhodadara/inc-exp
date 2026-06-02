@@ -2,7 +2,7 @@ import { ExpenseCategoryEntity, IncomeCategoryEntity } from './../category/categ
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { CategoryType, PaymentMethod } from "../../constants/app.constants";
 import { UserEntity } from '../user/user.entity';
-import { DashboardEntity } from '../user/dahsboard/dashboard.entity';
+import { DashboardEntity } from '../home/dahsboard/dashboard.entity';
 
 @Entity('transacton')
 export class TransactionEntity {

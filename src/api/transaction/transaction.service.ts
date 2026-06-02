@@ -1,5 +1,5 @@
 import { da } from 'make-plural/cardinals';
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionEntity } from "./transaction.entity";
 import { Repository } from "typeorm";
@@ -11,13 +11,17 @@ import { dateToTimestamp, generateUniqueId } from "../../utils/app.utils";
 import { UserService } from "../user/user.service";
 import { CategoryService } from "../category/category.service";
 import moment from "moment";
+import { HomeService } from '../home/home.service';
+import { fr } from 'make-plural';
+import { from } from 'rxjs';
 
 @Injectable()
 export class TransactionService {
     constructor(
         @InjectRepository(TransactionEntity)
         private transactionRepository: Repository<TransactionEntity>,
-        private readonly userService: UserService,
+        @Inject(forwardRef(() => HomeService))
+        private readonly homeService: HomeService,
         private readonly categoryService: CategoryService,
     ) { }
 
@@ -89,14 +93,51 @@ export class TransactionService {
             .getManyAndCount();
 
 
-        const income = data
-            .filter((item) => item.transactionMethod === CategoryType.INCOME)
-            .reduce((sum, earning) => sum + Number(earning.amount), 0)
-        const expense = data
-            .filter((item) => item.transactionMethod === CategoryType.EXPENSE)
-            .reduce((sum, expense) => sum + Number(expense.amount), 0)
-        const balance = income - expense
+        const summary = await this.getSummaryOfTransaction(uid, did, fromDate, toDate);
+        const income = summary.totalEarning
+        const expense = summary.totalExpense
+        const balance = summary.balance
         return { data, total, income, expense, balance };
+    }
+
+    async getSummaryOfTransaction(uid: string, did: string, fromDate: number = 0, toDate: number = 0) {
+        const summary = this.transactionRepository
+            .createQueryBuilder('transaction')
+            .leftJoin('transaction.user', 'user')
+            .leftJoin('transaction.dashboard', 'dashboard')
+            .select(
+                'SUM(CASE WHEN transaction.transactionMethod = :incomeType THEN transaction.amount ELSE 0 END)',
+                'totalIncome',
+            )
+            .addSelect(
+                'SUM(CASE WHEN transaction.transactionMethod = :expenseType THEN transaction.amount ELSE 0 END)',
+                'totalExpense',
+            )
+            .setParameters({
+                incomeType: CategoryType.INCOME,
+                expenseType: CategoryType.EXPENSE,
+            })
+            .where('user.uid = :uid', { uid })
+            .andWhere('dashboard.did = :did', { did })
+
+        if (fromDate !== 0 && toDate !== 0) {
+            const startDate = moment.utc(fromDate).valueOf();
+            const endDate = moment.utc(toDate).valueOf();
+            summary.andWhere('transaction.createdAt BETWEEN :startDate AND :endDate', {
+                startDate, endDate
+            })
+        }
+
+        const result = await summary.getRawOne();
+
+        const totalEarning = Number(result.totalIncome || 0);
+        const totalExpense = Number(result.totalExpense || 0);
+
+        return {
+            totalEarning,
+            totalExpense,
+            balance: totalEarning - totalExpense,
+        };
     }
 
     async validateTransaction(uid: string, i18n: I18nContext, transactionDto: TransactionDto) {
@@ -130,7 +171,7 @@ export class TransactionService {
             throw new BadRequestException(i18n.t('common.INVALID_TRANSACTION_METHOD'))
         }
 
-        const dashboardList = await this.userService.getUserDashboardByUid(uid);
+        const dashboardList = await this.homeService.getUserDashboardByUid(uid);
 
         const dashboardExist = dashboardList?.find((dashboard) => {
             return dashboard.did === transactionDto.did

@@ -1,8 +1,7 @@
-import { tr } from './../../../node_modules/make-plural/cardinals.d';
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
-import { DashboardEntity } from "./dahsboard/dashboard.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from "typeorm";
 import { ExpenseCategoryEntity, IncomeCategoryEntity } from '../category/category.entity';
 import { TransactionEntity } from '../transaction/transaction.entity';
+import { DashboardEntity } from "../home/dahsboard/dashboard.entity";
 
 @Entity('user')
 export class UserEntity {
@@ -29,6 +28,10 @@ export class UserEntity {
         },
     })
     createdAt!: number
+
+    @ManyToOne(() => DashboardEntity, (dashboard) => dashboard.user)
+    @JoinColumn({ name: 'did' })
+    defaultDashboard!: DashboardEntity
 
     @OneToMany(() => DashboardEntity, (dashboard) => dashboard.user)
     dahsboards!: DashboardEntity[]
