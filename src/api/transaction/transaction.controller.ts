@@ -45,7 +45,7 @@ export class TransactionController {
     @Get('transaction')
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
-    @ApiOperation({ summary: 'Get all auth user categories' })
+    @ApiOperation({ summary: 'Get dashboard user all transaction' })
     @ApiQuery({ name: 'count', required: false, type: 'number' })
     @ApiQuery({ name: 'limit', required: false, type: 'number' })
     @ApiQuery({ name: 'fromDate', type: 'number', required: false })

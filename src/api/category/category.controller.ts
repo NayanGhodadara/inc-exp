@@ -18,7 +18,7 @@ export class CategoryController {
     @Post('category')
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
-    @ApiOperation({ summary: 'create new income and expense' })
+    @ApiOperation({ summary: 'create new income and expense categories' })
     @ApiBody({ type: CategoryDto })
     @ApiOperation({ summary: 'create income and expense categories', description: `Type: ${Object.values(CategoryType).join(',')}` })
     async createCategory(
@@ -37,7 +37,7 @@ export class CategoryController {
     @Get('category')
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
-    @ApiOperation({ summary: 'Get all auth user categories' })
+    @ApiOperation({ summary: 'Get auth user all categories' })
     @ApiQuery({ name: 'count', required: false, type: 'number' })
     @ApiQuery({ name: 'limit', required: false, type: 'number' })
     @ApiQuery({ name: 'type', enum: CategoryType })
