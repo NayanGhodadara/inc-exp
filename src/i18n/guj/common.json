@@ -5,6 +5,7 @@
     "TOKEN_REQUIRED": "ટોકન જરૂરી છે",
     "PROVIDER_TYPE_REQUIRED": "પ્રોવાઇડર પ્રકાર જરૂરી છે",
     "EMAIL_REQUIRED": "ઈમેલ જરૂરી છે",
+    "EMAIL_INVALID": "ઈમેલ માન્ય નથી",
     "INVALID_OTP": "અમાન્ય OTP",
     "OTP_VERIFIED": "OTP સફળતાપૂર્વક ચકાસવામાં આવ્યો",
     "OTP_REQUIRED": "OTP જરૂરી છે",

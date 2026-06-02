@@ -5,6 +5,7 @@
     "TOKEN_REQUIRED": "token required",
     "PROVIDER_TYPE_REQUIRED": "provider type required",
     "EMAIL_REQUIRED": "email required",
+    "EMAIL_INVALID": "email is not valid",
     "OTP_REQUIRED": "otp required",
     "INVALID_OTP": "invalid otp",
     "OTP_SEND": "Otp sent successfully",

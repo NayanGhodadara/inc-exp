@@ -115,6 +115,7 @@ export class HomeService {
             where: { did: did },
             relations: { user: true }
         })
-        return dashboard
+        const homeDetail = await this.getHomeDetails(uid, dashboard?.did || '', i18n)
+        return homeDetail
     }
 }

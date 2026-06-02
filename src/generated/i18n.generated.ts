@@ -12,6 +12,7 @@ export type I18nTranslations = {
         "TOKEN_REQUIRED": string;
         "PROVIDER_TYPE_REQUIRED": string;
         "EMAIL_REQUIRED": string;
+        "EMAIL_INVALID": string;
         "OTP_REQUIRED": string;
         "INVALID_OTP": string;
         "OTP_SEND": string;

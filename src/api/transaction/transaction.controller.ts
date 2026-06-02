@@ -98,7 +98,7 @@ export class TransactionController {
     ) {
         const data = await this.transactionService.deleteTransaction(user, tid, i18n)
         return {
-            statusCode: 201,
+            statusCode: 204,
             message: i18n.t('common.SUCCESS'),
             data: data
         }
