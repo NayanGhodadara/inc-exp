@@ -175,7 +175,6 @@ export class TransactionService {
 
 
         const rows = data.map((item, index) => {
-            console.log('item', item.incomeCategory, item.expenseCategory)
             const category =
                 item.incomeCategory?.title ??
                 item.expenseCategory?.title ??
