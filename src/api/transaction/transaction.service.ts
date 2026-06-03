@@ -255,7 +255,6 @@ export class TransactionService {
             .replace('{{transactions}}', rows);
 
         const browser = await chromium.launch({
-            executablePath: chromium.executablePath(),
             headless: true,
             args: [
                 '--no-sandbox',
