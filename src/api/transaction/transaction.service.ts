@@ -1,3 +1,4 @@
+import { chromium } from 'playwright';
 import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TransactionEntity } from "./transaction.entity";
@@ -12,7 +13,6 @@ import moment from "moment";
 import { HomeService } from '../home/home.service';
 import * as fs from 'fs';
 import path from "path";
-import puppeteer from 'puppeteer';
 
 @Injectable()
 export class TransactionService {
@@ -158,9 +158,26 @@ export class TransactionService {
         };
     }
 
-    async generateReport(uid: string, did: string, fromDate?: number, toDate?: number,) {
-        const { data, income, expense, balance } =
-            await this.getAllTransaction(uid, 0, 0, did, fromDate ?? 0, toDate ?? 0, true);
+    async generateReport(
+        uid: string,
+        did: string,
+        fromDate?: number,
+        toDate?: number,
+    ) {
+        const {
+            data,
+            income,
+            expense,
+            balance,
+        } = await this.getAllTransaction(
+            uid,
+            0,
+            0,
+            did,
+            fromDate ?? 0,
+            toDate ?? 0,
+            true,
+        );
 
         const dashboard =
             await this.homeService.getDashboardDetail(did);
@@ -171,7 +188,10 @@ export class TransactionService {
             'report.template.html',
         );
 
-        let html = fs.readFileSync(templatePath, 'utf8');
+        let html = fs.readFileSync(
+            templatePath,
+            'utf8',
+        );
 
         const rows = data
             .map((item, index) => {
@@ -181,20 +201,25 @@ export class TransactionService {
                     '-';
 
                 return `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${moment(item.createdAt).format('DD MMM YYYY')}</td>
-                <td>${category}</td>
-                <td>${item.paymentMethod}</td>
-                <td>${item.transactionMethod === CategoryType.INCOME
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${moment(item.createdAt).format(
+                    'DD MMM YYYY',
+                )}</td>
+                    <td>${category}</td>
+                    <td>${item.paymentMethod}</td>
+                    <td>
+                        ${item.transactionMethod ===
+                        CategoryType.INCOME
                         ? 'Income'
                         : 'Expense'
-                    }</td>
-                <td style="text-align:right">
-                    ₹${item.amount}
-                </td>
-            </tr>
-        `;
+                    }
+                    </td>
+                    <td style="text-align:right">
+                        ₹${item.amount}
+                    </td>
+                </tr>
+            `;
             })
             .join('');
 
@@ -202,67 +227,88 @@ export class TransactionService {
             .replace('{{income}}', income.toString())
             .replace('{{expense}}', expense.toString())
             .replace('{{balance}}', balance.toString())
-            .replace('{{dashboardName}}', dashboard?.name ?? '-')
+            .replace(
+                '{{dashboardName}}',
+                dashboard?.name ?? '-',
+            )
             .replace(
                 '{{generatedDate}}',
-                new Date().toLocaleDateString(),
+                moment().format('DD MMM YYYY'),
             )
             .replace(
                 '{{fromDate}}',
                 fromDate
-                    ? new Date(fromDate).toLocaleDateString()
+                    ? moment(fromDate).format(
+                        'DD MMM YYYY',
+                    )
                     : 'All Time',
             )
             .replace(
                 '{{toDate}}',
                 toDate
-                    ? new Date(toDate).toLocaleDateString()
+                    ? moment(toDate).format(
+                        'DD MMM YYYY',
+                    )
                     : 'Today',
             )
             .replace('{{transactions}}', rows);
 
-        const browser = await puppeteer.launch({
+        const browser = await chromium.launch({
             headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
         });
 
-        const page = await browser.newPage();
+        try {
+            const page = await browser.newPage();
 
-        await page.setContent(html, {
-            waitUntil: 'load',
-        });
+            await page.setContent(html, {
+                waitUntil: 'networkidle',
+            });
 
-        const pdf = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-        });
+            const pdfBuffer = await page.pdf({
+                format: 'A4',
+                printBackground: true,
+                margin: {
+                    top: '20px',
+                    right: '20px',
+                    bottom: '20px',
+                    left: '20px',
+                },
+            });
 
-        await browser.close();
+            const reportsDir = path.join(
+                process.cwd(),
+                'uploads',
+                'reports',
+            );
 
-        // Create uploads directory if not exists
-        const reportsDir = path.join(
-            process.cwd(),
-            'uploads',
-            'reports',
-        );
+            fs.mkdirSync(reportsDir, {
+                recursive: true,
+            });
 
-        fs.mkdirSync(reportsDir, {
-            recursive: true,
-        });
+            const fileName = `report-${did}-${Date.now()}.pdf`;
 
-        // Unique file name
-        const fileName = `report-${did}-${Date.now()}.pdf`;
+            const filePath = path.join(
+                reportsDir,
+                fileName,
+            );
 
-        const filePath = path.join(
-            reportsDir,
-            fileName,
-        );
+            fs.writeFileSync(
+                filePath,
+                pdfBuffer,
+            );
 
-        fs.writeFileSync(filePath, pdf);
-        return {
-            success: true,
-            fileName,
-            url: `${process.env.BASE_URL}uploads/reports/${fileName}`,
-        };
+            return {
+                success: true,
+                fileName,
+                url: `${process.env.BASE_URL}/uploads/reports/${fileName}`,
+            };
+        } finally {
+            await browser.close();
+        }
     }
 
     async validateTransaction(uid: string, i18n: I18nContext, transactionDto: TransactionDto) {
