@@ -13,6 +13,8 @@ import moment from "moment";
 import { HomeService } from '../home/home.service';
 import * as fs from 'fs';
 import path from "path";
+import puppeteer from 'puppeteer';
+
 
 @Injectable()
 export class TransactionService {
@@ -164,7 +166,6 @@ export class TransactionService {
         fromDate?: number,
         toDate?: number,
     ) {
-        console.log('Executable Path:', chromium.executablePath());
         const {
             data,
             income,
@@ -194,7 +195,7 @@ export class TransactionService {
             'utf8',
         );
 
-        const rows = data
+        const transactions = data
             .map((item, index) => {
                 const category =
                     item.incomeCategory?.title ??
@@ -204,30 +205,23 @@ export class TransactionService {
                 return `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${moment(item.createdAt).format(
-                    'DD MMM YYYY',
-                )}</td>
+                    <td>${moment(item.createdAt).format('DD MMM YYYY')}</td>
                     <td>${category}</td>
                     <td>${item.paymentMethod}</td>
-                    <td>
-                        ${item.transactionMethod ===
-                        CategoryType.INCOME
+                    <td>${item.transactionMethod === CategoryType.INCOME
                         ? 'Income'
                         : 'Expense'
-                    }
-                    </td>
-                    <td style="text-align:right">
-                        ₹${item.amount}
-                    </td>
+                    }</td>
+                    <td style="text-align:right">₹${item.amount}</td>
                 </tr>
             `;
             })
             .join('');
 
         html = html
-            .replace('{{income}}', income.toString())
-            .replace('{{expense}}', expense.toString())
-            .replace('{{balance}}', balance.toString())
+            .replace('{{income}}', `${income}`)
+            .replace('{{expense}}', `${expense}`)
+            .replace('{{balance}}', `${balance}`)
             .replace(
                 '{{dashboardName}}',
                 dashboard?.name ?? '-',
@@ -239,31 +233,39 @@ export class TransactionService {
             .replace(
                 '{{fromDate}}',
                 fromDate
-                    ? moment(fromDate).format(
-                        'DD MMM YYYY',
-                    )
+                    ? moment(fromDate).format('DD MMM YYYY')
                     : 'All Time',
             )
             .replace(
                 '{{toDate}}',
                 toDate
-                    ? moment(toDate).format(
-                        'DD MMM YYYY',
-                    )
+                    ? moment(toDate).format('DD MMM YYYY')
                     : 'Today',
             )
-            .replace('{{transactions}}', rows);
+            .replace('{{transactions}}', transactions);
 
-        const browser = await chromium.launch({
+        const reportsDir = path.join(
+            process.cwd(),
+            'uploads',
+            'reports',
+        );
+
+        fs.mkdirSync(reportsDir, {
+            recursive: true,
+        });
+
+        const fileName = `report-${did}-${Date.now()}.pdf`;
+        const filePath = path.join(
+            reportsDir,
+            fileName,
+        );
+
+        const browser = await puppeteer.launch({
             headless: true,
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-software-rasterizer',
-                '--single-process',
-                '--no-zygote',
             ],
         });
 
@@ -271,10 +273,11 @@ export class TransactionService {
             const page = await browser.newPage();
 
             await page.setContent(html, {
-                waitUntil: 'networkidle',
+                waitUntil: 'load',
             });
 
-            const pdfBuffer = await page.pdf({
+            await page.pdf({
+                path: filePath,
                 format: 'A4',
                 printBackground: true,
                 margin: {
@@ -284,28 +287,6 @@ export class TransactionService {
                     left: '20px',
                 },
             });
-
-            const reportsDir = path.join(
-                process.cwd(),
-                'uploads',
-                'reports',
-            );
-
-            fs.mkdirSync(reportsDir, {
-                recursive: true,
-            });
-
-            const fileName = `report-${did}-${Date.now()}.pdf`;
-
-            const filePath = path.join(
-                reportsDir,
-                fileName,
-            );
-
-            fs.writeFileSync(
-                filePath,
-                pdfBuffer,
-            );
 
             return {
                 success: true,
