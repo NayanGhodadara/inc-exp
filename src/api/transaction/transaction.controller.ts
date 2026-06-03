@@ -108,12 +108,6 @@ export class TransactionController {
     @Get('transaction/download-report/:did')
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
-    @Header('Content-Type', 'application/pdf')
-    @Header(
-        'Content-Disposition',
-        'attachment; filename="expense-report.pdf"',
-    )
-    @ApiProduces('application/pdf')
     @ApiParam({ name: 'did', required: true, description: 'Dashboard id' })
     @ApiQuery({ name: 'fromDate', type: Number, required: false, })
     @ApiQuery({ name: 'toDate', type: Number, required: false, })
@@ -122,7 +116,7 @@ export class TransactionController {
         @Param('did') did: string,
         @Query('fromDate', new DefaultValuePipe(0), ParseIntPipe) fromDate: number,
         @Query('toDate', new DefaultValuePipe(0), ParseIntPipe) toDate: number,
-    ): Promise<StreamableFile> {
+    ) {
         const pdfBuffer = await this.transactionService.generateReport(
             user.uid,
             did,
@@ -130,6 +124,6 @@ export class TransactionController {
             toDate,
         );
 
-        return new StreamableFile(pdfBuffer);
+        return pdfBuffer;
     }
 }

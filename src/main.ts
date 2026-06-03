@@ -47,6 +47,7 @@ async function bootstrap() {
 
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.useStaticAssets(join(process.cwd(), 'uploads'));
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();

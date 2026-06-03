@@ -14,7 +14,7 @@ import { OptionModule } from './option/option.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { RedisModule } from './auth/redis/redis.module';
 import { HomeModule } from './home/home.module';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -41,6 +41,10 @@ import { HomeModule } from './home/home.module';
           options: ['accept-language'],
         },
       ],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
     }),
     AuthModule,
     RedisModule,

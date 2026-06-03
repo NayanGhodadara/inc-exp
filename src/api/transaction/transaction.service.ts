@@ -158,51 +158,55 @@ export class TransactionService {
         };
     }
 
-    async generateReport(
-        uid: string,
-        did: string,
-        fromDate?: number,
-        toDate?: number,
-    ): Promise<Buffer> {
+    async generateReport(uid: string, did: string, fromDate?: number, toDate?: number,) {
+        const { data, income, expense, balance } =
+            await this.getAllTransaction(uid, 0, 0, did, fromDate ?? 0, toDate ?? 0, true);
 
-        const {
-            data, income, expense, balance,
-        } = await this.getAllTransaction(uid, 0, 0, did, fromDate ?? 0, toDate ?? 0, true,);
-        const dashboard = await this.homeService.getDashboardDetail(did)
+        const dashboard =
+            await this.homeService.getDashboardDetail(did);
 
-        const templatePath = path.join(process.cwd(), 'view', 'report.template.html',);
+        const templatePath = path.join(
+            process.cwd(),
+            'view',
+            'report.template.html',
+        );
+
         let html = fs.readFileSync(templatePath, 'utf8');
 
+        const rows = data
+            .map((item, index) => {
+                const category =
+                    item.incomeCategory?.title ??
+                    item.expenseCategory?.title ??
+                    '-';
 
-        const rows = data.map((item, index) => {
-            const category =
-                item.incomeCategory?.title ??
-                item.expenseCategory?.title ??
-                '-';
-
-            return `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${moment(item.createdAt).format('DD MMM YYYY')}</td>
-            <td>${category}</td>
-            <td>${item.paymentMethod}</td>
-            <td>${item.transactionMethod == CategoryType.INCOME ? 'Income' : 'Expense'}</td>
-            <td style="text-align:right"
-                class="${item.transactionMethod === CategoryType.INCOME
-                    ? 'amount-income'
-                    : 'amount-expense'}">
-                ₹${item.amount}
-            </td>
-        </tr>
-    `;
-        }).join('');
+                return `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${moment(item.createdAt).format('DD MMM YYYY')}</td>
+                <td>${category}</td>
+                <td>${item.paymentMethod}</td>
+                <td>${item.transactionMethod === CategoryType.INCOME
+                        ? 'Income'
+                        : 'Expense'
+                    }</td>
+                <td style="text-align:right">
+                    ₹${item.amount}
+                </td>
+            </tr>
+        `;
+            })
+            .join('');
 
         html = html
             .replace('{{income}}', income.toString())
             .replace('{{expense}}', expense.toString())
             .replace('{{balance}}', balance.toString())
             .replace('{{dashboardName}}', dashboard?.name ?? '-')
-            .replace('{{generatedDate}}', new Date(moment().toDate()).toLocaleDateString())
+            .replace(
+                '{{generatedDate}}',
+                new Date().toLocaleDateString(),
+            )
             .replace(
                 '{{fromDate}}',
                 fromDate
@@ -234,7 +238,31 @@ export class TransactionService {
 
         await browser.close();
 
-        return Buffer.from(pdf);
+        // Create uploads directory if not exists
+        const reportsDir = path.join(
+            process.cwd(),
+            'uploads',
+            'reports',
+        );
+
+        fs.mkdirSync(reportsDir, {
+            recursive: true,
+        });
+
+        // Unique file name
+        const fileName = `report-${did}-${Date.now()}.pdf`;
+
+        const filePath = path.join(
+            reportsDir,
+            fileName,
+        );
+
+        fs.writeFileSync(filePath, pdf);
+        return {
+            success: true,
+            fileName,
+            url: `${process.env.BASE_URL}uploads/reports/${fileName}`,
+        };
     }
 
     async validateTransaction(uid: string, i18n: I18nContext, transactionDto: TransactionDto) {
