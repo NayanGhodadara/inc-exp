@@ -254,62 +254,74 @@ export class TransactionService {
             )
             .replace('{{transactions}}', rows);
 
-        const browser = await chromium.launch({
-            executablePath: chromium.executablePath(),
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-            ],
-        });
-
         try {
-            const page = await browser.newPage();
+            console.log('Executable Path:', chromium.executablePath());
 
-            await page.setContent(html, {
-                waitUntil: 'networkidle',
+            const browser = await chromium.launch({
+                executablePath: chromium.executablePath(),
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--single-process',
+                ],
             });
 
-            const pdfBuffer = await page.pdf({
-                format: 'A4',
-                printBackground: true,
-                margin: {
-                    top: '20px',
-                    right: '20px',
-                    bottom: '20px',
-                    left: '20px',
-                },
-            });
-
-            const reportsDir = path.join(
-                process.cwd(),
-                'uploads',
-                'reports',
-            );
-
-            fs.mkdirSync(reportsDir, {
-                recursive: true,
-            });
-
-            const fileName = `report-${did}-${Date.now()}.pdf`;
-
-            const filePath = path.join(
-                reportsDir,
-                fileName,
-            );
-
-            fs.writeFileSync(
-                filePath,
-                pdfBuffer,
-            );
-
-            return {
-                success: true,
-                fileName,
-                url: `${process.env.BASE_URL}/uploads/reports/${fileName}`,
-            };
-        } finally {
             await browser.close();
+
+            try {
+                const page = await browser.newPage();
+
+                await page.setContent(html, {
+                    waitUntil: 'networkidle',
+                });
+
+                const pdfBuffer = await page.pdf({
+                    format: 'A4',
+                    printBackground: true,
+                    margin: {
+                        top: '20px',
+                        right: '20px',
+                        bottom: '20px',
+                        left: '20px',
+                    },
+                });
+
+                const reportsDir = path.join(
+                    process.cwd(),
+                    'uploads',
+                    'reports',
+                );
+
+                fs.mkdirSync(reportsDir, {
+                    recursive: true,
+                });
+
+                const fileName = `report-${did}-${Date.now()}.pdf`;
+
+                const filePath = path.join(
+                    reportsDir,
+                    fileName,
+                );
+
+                fs.writeFileSync(
+                    filePath,
+                    pdfBuffer,
+                );
+
+                return {
+                    success: true,
+                    fileName,
+                    url: `${process.env.BASE_URL}/uploads/reports/${fileName}`,
+                };
+            } finally {
+                await browser.close();
+            }
+        } catch (error) {
+            console.error('PLAYWRIGHT ERROR');
+            console.error(error);
+            throw error;
         }
     }
 
