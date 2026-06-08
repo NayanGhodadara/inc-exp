@@ -16,7 +16,6 @@ async function bootstrap() {
     .setDescription('API documentation for the Inc-Exp application')
     .setVersion('1.0')
     .addBearerAuth()
-    .addServer('http://localhost:2000', 'Local')
     .addServer(process.env.BASE_URL || '', 'Inc-Exp server')
     .build();
 
