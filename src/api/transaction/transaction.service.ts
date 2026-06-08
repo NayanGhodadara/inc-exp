@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { InjectRepository } from '@nestjs/typeorm';
 import { TransactionEntity } from "./transaction.entity";
 import { Repository } from "typeorm";
 import { TransactionDto } from "./transaction.dto";
@@ -13,7 +13,6 @@ import moment from "moment";
 import { HomeService } from '../home/home.service';
 import * as fs from 'fs';
 import path from "path";
-import puppeteer from 'puppeteer';
 
 
 @Injectable()
@@ -161,142 +160,70 @@ export class TransactionService {
     }
 
     async generateReport(
-        uid: string,
-        did: string,
-        fromDate?: number,
-        toDate?: number,
-    ) {
-        const {
-            data,
-            income,
-            expense,
-            balance,
-        } = await this.getAllTransaction(
-            uid,
-            0,
-            0,
-            did,
-            fromDate ?? 0,
-            toDate ?? 0,
-            true,
-        );
+    uid: string,
+    did: string,
+    fromDate?: number,
+    toDate?: number,
+) {
+    const {data,income,expense,balance} = await this.getAllTransaction(uid,0,0,    did,fromDate ?? 0,toDate ?? 0,true);
 
-        const dashboard =
-            await this.homeService.getDashboardDetail(did);
+    const dashboard =
+        await this.homeService.getDashboardDetail(did);
 
-        const templatePath = path.join(
-            process.cwd(),
-            'view',
-            'report.template.html',
-        );
+    const templatePath = path.join(
+        process.cwd(),
+        'view',
+        'report.template.html',
+    );
 
-        let html = fs.readFileSync(
-            templatePath,
-            'utf8',
-        );
+    let html = fs.readFileSync(templatePath, 'utf8');
 
-        const transactions = data
-            .map((item, index) => {
-                const category =
-                    item.incomeCategory?.title ??
-                    item.expenseCategory?.title ??
-                    '-';
+    const transactions = data
+        .map((item, index) => {
+            const category =
+                item.incomeCategory?.title ??
+                item.expenseCategory?.title ??
+                '-';
 
-                return `
+            return `
                 <tr>
                     <td>${index + 1}</td>
                     <td>${moment(item.createdAt).format('DD MMM YYYY')}</td>
                     <td>${category}</td>
                     <td>${item.paymentMethod}</td>
-                    <td>${item.transactionMethod === CategoryType.INCOME
-                        ? 'Income'
-                        : 'Expense'
+                    <td>${
+                        item.transactionMethod === CategoryType.INCOME
+                            ? 'Income'
+                            : 'Expense'
                     }</td>
                     <td style="text-align:right">₹${item.amount}</td>
                 </tr>
             `;
-            })
-            .join('');
+        })
+        .join('');
 
-        html = html
-            .replace('{{income}}', `${income}`)
-            .replace('{{expense}}', `${expense}`)
-            .replace('{{balance}}', `${balance}`)
-            .replace(
-                '{{dashboardName}}',
-                dashboard?.name ?? '-',
-            )
-            .replace(
-                '{{generatedDate}}',
-                moment().format('DD MMM YYYY'),
-            )
-            .replace(
-                '{{fromDate}}',
-                fromDate
-                    ? moment(fromDate).format('DD MMM YYYY')
-                    : 'All Time',
-            )
-            .replace(
-                '{{toDate}}',
-                toDate
-                    ? moment(toDate).format('DD MMM YYYY')
-                    : 'Today',
-            )
-            .replace('{{transactions}}', transactions);
+    html = html
+        .replace('{{income}}', `${income}`)
+        .replace('{{expense}}', `${expense}`)
+        .replace('{{balance}}', `${balance}`)
+        .replace('{{dashboardName}}', dashboard?.name ?? '-')
+        .replace('{{generatedDate}}', moment().format('DD MMM YYYY'))
+        .replace(
+            '{{fromDate}}',
+            fromDate
+                ? moment(fromDate).format('DD MMM YYYY')
+                : 'All Time',
+        )
+        .replace(
+            '{{toDate}}',
+            toDate
+                ? moment(toDate).format('DD MMM YYYY')
+                : 'Today',
+        )
+        .replace('{{transactions}}', transactions);
 
-        const reportsDir = path.join(
-            process.cwd(),
-            'uploads',
-            'reports',
-        );
-
-        fs.mkdirSync(reportsDir, {
-            recursive: true,
-        });
-
-        const fileName = `report-${did}-${Date.now()}.pdf`;
-        const filePath = path.join(
-            reportsDir,
-            fileName,
-        );
-
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-            ],
-        });
-
-        try {
-            const page = await browser.newPage();
-
-            await page.setContent(html, {
-                waitUntil: 'load',
-            });
-
-            await page.pdf({
-                path: filePath,
-                format: 'A4',
-                printBackground: true,
-                margin: {
-                    top: '20px',
-                    right: '20px',
-                    bottom: '20px',
-                    left: '20px',
-                },
-            });
-
-            return {
-                success: true,
-                fileName,
-                url: `${process.env.BASE_URL}/uploads/reports/${fileName}`,
-            };
-        } finally {
-            await browser.close();
-        }
-    }
+    return html;
+}
 
     async validateTransaction(uid: string, i18n: I18nContext, transactionDto: TransactionDto) {
         if (!transactionDto.amount) {

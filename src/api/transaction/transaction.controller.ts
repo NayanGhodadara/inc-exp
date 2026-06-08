@@ -117,13 +117,13 @@ export class TransactionController {
         @Query('fromDate', new DefaultValuePipe(0), ParseIntPipe) fromDate: number,
         @Query('toDate', new DefaultValuePipe(0), ParseIntPipe) toDate: number,
     ) {
-        const pdfBuffer = await this.transactionService.generateReport(
+        const html = await this.transactionService.generateReport(
             user.uid,
             did,
             fromDate,
             toDate,
         );
 
-        return pdfBuffer;
+        return html;
     }
 }
