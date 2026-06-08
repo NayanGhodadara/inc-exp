@@ -107,7 +107,7 @@ export class AuthService {
             });
             console.log(`to : ${to}`)
 
-            await this.redis.set(`otp:${to}`, otp, 'EX', 30);
+            await this.redis.set(`otp:${to}`, otp, 'EX', 60);
         } catch (error) {
             console.log(error);
         }
